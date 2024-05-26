@@ -24,12 +24,7 @@ const links = [
     description: "Do's and don'ts",
     Icon: CheckSquare,
   },
-  {
-    link: '/questions',
-    label: 'Questions',
-    description: 'Test and Practice your knowledge',
-    Icon: FileQuestion,
-  },
+  
   {
     link: '/guides',
     label: 'Guides',
