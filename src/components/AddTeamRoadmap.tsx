@@ -37,9 +37,7 @@ export function AddTeamRoadmap(props: AddTeamRoadmapProps) {
 
     setIsLoading(true);
     const { error, response } = await httpPut<TeamResourceConfig>(
-      `${
-        import.meta.env.PUBLIC_API_URL
-      }/v1-update-team-resource-config/${teamId}`,
+      `${import.meta.env.PUBLIC_API_URL}/v1-update-team-resource-config/${teamId}`,
       {
         teamId: teamId,
         resourceId: roadmapId,
@@ -50,10 +48,12 @@ export function AddTeamRoadmap(props: AddTeamRoadmapProps) {
 
     if (error || !response) {
       setError(error?.message || 'Error adding roadmap');
+      setIsLoading(false);
       return;
     }
 
     setResourceConfigs(response);
+    setIsLoading(false);
   }
 
   useOutsideClick(popupBodyEl, () => {
@@ -65,37 +65,34 @@ export function AddTeamRoadmap(props: AddTeamRoadmapProps) {
   )?.title;
 
   return (
-    <div className="popup fixed left-0 right-0 top-0 z-50 flex h-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black/50">
-      <div className="relative h-full w-full max-w-md p-4 md:h-auto">
+    <div className="popup fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="relative w-full max-w-md p-4">
         <div
           ref={popupBodyEl}
-          className="popup-body relative rounded-lg bg-white p-4 shadow"
+          className="popup-body relative rounded-lg bg-white p-6 shadow-lg transition-transform transform-gpu"
         >
           {isLoading && (
-            <>
-              <div className="flex items-center justify-center gap-2 py-8">
-                <Spinner isDualRing={false} className="h-4 w-4" />
-                <h2 className="font-medium">Loading...</h2>
-              </div>
-            </>
+            <div className="flex items-center justify-center py-8">
+              <Spinner isDualRing={false} className="h-5 w-5 animate-spin text-gray-500" />
+              <h2 className="ml-3 font-medium text-gray-700">Loading...</h2>
+            </div>
           )}
           {!isLoading && !error && selectedRoadmap && (
-            <div className={'text-center'}>
-              <CheckIcon additionalClasses="h-10 w-10 mx-auto opacity-20 mb-3 mt-4" />
-              <h3 className="mb-1.5 text-2xl font-medium">
+            <div className="text-center">
+              <CheckIcon additionalClasses="h-10 w-10 mx-auto mb-4 mt-6 text-green-500" />
+              <h3 className="mb-2 text-2xl font-semibold text-gray-800">
                 {selectedRoadmapTitle} Added
               </h3>
-              <p className="mb-4 text-sm leading-none text-gray-400">
+              <p className="mb-5 text-sm text-gray-500">
                 <button
                   onClick={() => onMakeChanges(selectedRoadmap)}
-                  className="underline underline-offset-2 hover:text-gray-900"
+                  className="text-blue-500 underline hover:text-blue-700"
                 >
                   Click here
                 </button>{' '}
                 to make changes to the roadmap.
               </p>
-
-              <div className="flex items-center gap-2">
+              <div className="flex gap-3">
                 <button
                   onClick={onClose}
                   type="button"
@@ -110,7 +107,7 @@ export function AddTeamRoadmap(props: AddTeamRoadmapProps) {
                     setIsLoading(false);
                   }}
                   type="button"
-                  className="flex-grow cursor-pointer rounded-lg bg-black py-2 text-center text-white"
+                  className="flex-grow cursor-pointer rounded-lg bg-black py-2 text-center text-white hover:bg-gray-800"
                 >
                   + Add More
                 </button>
@@ -118,28 +115,24 @@ export function AddTeamRoadmap(props: AddTeamRoadmapProps) {
             </div>
           )}
           {!isLoading && error && (
-            <>
-              <h3 className="mb-1.5 text-2xl font-medium">Error</h3>
-              <p className="mb-3 text-sm leading-none text-red-400">{error}</p>
-
-              <div className="flex items-center gap-2">
+            <div className="text-center">
+              <h3 className="mb-2 text-2xl font-semibold text-red-600">Error</h3>
+              <p className="mb-4 text-sm text-red-400">{error}</p>
+              <div className="flex justify-center">
                 <button
                   onClick={onClose}
                   type="button"
-                  className="flex-grow cursor-pointer rounded-lg bg-gray-200 py-2 text-center hover:bg-gray-300"
+                  className="cursor-pointer rounded-lg bg-gray-200 py-2 px-6 text-center hover:bg-gray-300"
                 >
                   Cancel
                 </button>
               </div>
-            </>
+            </div>
           )}
           {!isLoading && !error && !selectedRoadmap && (
-            <>
-              <h3 className="mb-1.5 text-2xl font-medium">Add Roadmap</h3>
-              <p className="mb-3 text-sm leading-none text-gray-400">
-                Search and add a roadmap
-              </p>
-
+            <div className="text-center">
+              <h3 className="mb-2 text-2xl font-semibold text-gray-800">Add Roadmap</h3>
+              <p className="mb-5 text-sm text-gray-500">Search and add a roadmap</p>
               <SearchSelector
                 options={availableRoadmaps.map((roadmap) => ({
                   value: roadmap.id,
@@ -147,25 +140,24 @@ export function AddTeamRoadmap(props: AddTeamRoadmapProps) {
                 }))}
                 onSelect={(option: OptionType) => {
                   const roadmapId = option.value;
+                  setIsLoading(true);
                   addTeamResource(roadmapId).finally(() => {
-                    setIsLoading(false);
                     setSelectedRoadmap(roadmapId);
                   });
                 }}
-                inputClassName="mt-2 mb-2 block w-full rounded-md border border-gray-300 px-3 py-2 outline-none placeholder:text-gray-400 focus:border-gray-400"
+                inputClassName="mt-2 mb-4 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
                 placeholder={'Search for roadmap'}
               />
-
-              <div className="flex items-center gap-2">
+              <div className="flex justify-center">
                 <button
                   onClick={onClose}
                   type="button"
-                  className="flex-grow cursor-pointer rounded-lg bg-gray-200 py-2 text-center hover:bg-gray-300"
+                  className="cursor-pointer rounded-lg bg-gray-200 py-2 px-6 text-center hover:bg-gray-300"
                 >
                   Cancel
                 </button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
