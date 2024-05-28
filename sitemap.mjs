@@ -1,5 +1,13 @@
+import { Counter, register, collectDefaultMetrics } from 'prom-client';
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import express from 'express';
+
+// Create an Express application
+const app = express();
+
+// Enable collection of default metrics (e.g., CPU, memory, event loop latency)
+collectDefaultMetrics();
 
 async function getRoadmapIds() {
   return fs.readdir(path.join(process.cwd(), 'src/data/roadmaps'));
@@ -36,6 +44,9 @@ export async function serializeSitemap(item) {
     ),
   ];
 
+  // Increment a counter for each call to serializeSitemap
+  metrics.serializeSitemapTotal.inc();
+
   // Roadmaps and other high priority pages
   for (let pageUrl of highPriorityPages) {
     if (item.url === pageUrl) {
@@ -63,3 +74,30 @@ export async function serializeSitemap(item) {
 
   return undefined;
 }
+
+// Define Prometheus metrics
+const metrics = {
+  serializeSitemapTotal: new Counter({
+    name: 'serialize_sitemap_total',
+    help: 'Total number of calls to serializeSitemap',
+  }),
+};
+
+// Expose Prometheus metrics endpoint
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType);
+  try {
+    const metricsString = await register.metrics();
+    res.end(metricsString);
+  } catch (error) {
+    console.error('Error generating metrics:', error);
+    res.status(500).send('Error generating metrics');
+  }
+});
+
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
