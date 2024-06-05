@@ -16,7 +16,7 @@ RUN pnpm install
 # Copy the rest of the application code
 COPY . .
 
-# Expose the port the app runs on
+# Expose the port the app runs on the browser
 EXPOSE 3000
 
 # Command to run the application with --host flag
