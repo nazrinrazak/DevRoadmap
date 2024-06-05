@@ -121,6 +121,10 @@ Note: use the `depth` parameter to reduce the clone size and speed up the clone.
 git clone --depth=1 https://github.com/kamranahmedse/developer-roadmap.git
 ```
 
+## Containerisation
+Use this command in the DevRoadMap folder to containerise the application
+  * `sudo docker build -t haffizhissham0/capstone_developer_roadmaps:latest .`
+
 ## Contribution
 
 > Have a look at [contribution docs](./contributing.md) for how to update any of the roadmaps
